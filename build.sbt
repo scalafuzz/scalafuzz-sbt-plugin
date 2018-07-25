@@ -10,7 +10,7 @@ resolvers ++= {
   if (isSnapshot.value) Seq(Resolver.sonatypeRepo("snapshots")) else Nil
 }
 
-libraryDependencies += "org.scalafuzz" %% "scalafuzz-scalac-plugin" % "0.1.0-SNAPSHOT"
+libraryDependencies += "org.scalafuzz" %% "scalafuzz-scalac-plugin" % "0.1.3-SNAPSHOT"
 
 publishMavenStyle := true
 

@@ -10,7 +10,7 @@ object ScalafuzzSbtPlugin extends AutoPlugin {
   val ScalacRuntimeArtifact = "scalafuzz-scalac-runtime"
   val ScalacPluginArtifact = "scalafuzz-scalac-plugin"
   // this should match the version defined in build.sbt
-  val DefaultScalafuzzVersion = "0.1.0-SNAPSHOT"
+  val DefaultScalafuzzVersion = "0.1.3-SNAPSHOT"
   val autoImport = ScalafuzzKeys
   lazy val ScalafuzzPluginConfig = config("scalafuzzPlugin").hide
 
@@ -36,9 +36,6 @@ object ScalafuzzSbtPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     ivyConfigurations += ScalafuzzPluginConfig,
-//    coverageReport := coverageReport0.value,
-//    coverageAggregate := coverageAggregate0.value,
-    aggregate in coverageAggregate := false
   ) ++ coverageSettings ++ scalacSettings
 
   private lazy val coverageSettings = Seq(
