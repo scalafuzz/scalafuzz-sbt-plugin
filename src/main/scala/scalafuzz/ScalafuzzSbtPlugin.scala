@@ -16,37 +16,34 @@ object ScalafuzzSbtPlugin extends AutoPlugin {
 
   import autoImport._
 
-  val aggregateFilter = ScopeFilter(inAggregates(ThisProject),
-    inConfigurations(Compile)) // must be outside of the 'coverageAggregate' task (see: https://github.com/sbt/sbt/issues/1095 or https://github.com/sbt/sbt/issues/780)
-
   override def requires: JvmPlugin.type = plugins.JvmPlugin
   override def trigger: PluginTrigger = allRequirements
 
   override def globalSettings: Seq[Def.Setting[_]] = super.globalSettings ++ Seq(
-    coverageEnabled := false,
-    coverageExcludedPackages := "",
-    coverageExcludedFiles := "",
-    coverageScalacPluginVersion := DefaultScalafuzzVersion
+    scalafuzzEnabled := false,
+    scalafuzzExcludedPackages := "",
+    scalafuzzExcludedFiles := "",
+    scalafuzzScalacPluginVersion := DefaultScalafuzzVersion
   )
 
   override def buildSettings: Seq[Setting[_]] = super.buildSettings ++
-    addCommandAlias("coverage", ";set coverageEnabled in ThisBuild := true") ++
-    addCommandAlias("coverageOn", ";set coverageEnabled in ThisBuild := true") ++
-    addCommandAlias("coverageOff", ";set coverageEnabled in ThisBuild := false")
+    addCommandAlias("scalafuzz", ";set scalafuzzEnabled in ThisBuild := true") ++
+    addCommandAlias("scalafuzzOn", ";set scalafuzzEnabled in ThisBuild := true") ++
+    addCommandAlias("scalafuzzOff", ";set scalafuzzEnabled in ThisBuild := false")
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     ivyConfigurations += ScalafuzzPluginConfig,
-  ) ++ coverageSettings ++ scalacSettings
+  ) ++ libDepsSettings ++ scalacSettings
 
-  private lazy val coverageSettings = Seq(
+  private lazy val libDepsSettings = Seq(
     libraryDependencies  ++= {
-      if (coverageEnabled.value)
+      if (scalafuzzEnabled.value)
         Seq(
           // We only add for "compile"" because of macros. This setting could be optimed to just "test" if the handling
           // of macro coverage was improved.
-          Org %% (scalacRuntime(libraryDependencies.value)) % coverageScalacPluginVersion.value,
+          Org %% scalacRuntime(libraryDependencies.value) % scalafuzzScalacPluginVersion.value,
           // We don't want to instrument the test code itself, nor add to a pom when published with coverage enabled.
-          Org %% ScalacPluginArtifact % coverageScalacPluginVersion.value % ScalafuzzPluginConfig.name
+          Org %% ScalacPluginArtifact % scalafuzzScalacPluginVersion.value % ScalafuzzPluginConfig.name
         )
       else
         Nil
@@ -56,17 +53,17 @@ object ScalafuzzSbtPlugin extends AutoPlugin {
   private lazy val scalacSettings = Seq(
     scalacOptions in(Compile, compile) ++= {
       val updateReport = update.value
-      if (coverageEnabled.value) {
+      if (scalafuzzEnabled.value) {
         val scalafuzzDeps: Seq[File] = updateReport matching configurationFilter(ScalafuzzPluginConfig.name)
         val pluginPath: File =  scalafuzzDeps.find(_.getAbsolutePath.contains(ScalacPluginArtifact)) match {
           case None => throw new Exception(s"Fatal: $ScalacPluginArtifact not in libraryDependencies")
-          case Some(pluginPath) => pluginPath
+          case Some(path) => path
         }
         Seq(
           Some(s"-Xplugin:${pluginPath.getAbsolutePath}"),
           Some(s"-P:scalafuzz:dataDir:${crossTarget.value.getAbsolutePath}/scalafuzz-data"),
-          Option(coverageExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scalafuzz:excludedPackages:$v"),
-          Option(coverageExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scalafuzz:excludedFiles:$v")
+          Option(scalafuzzExcludedPackages.value.trim).filter(_.nonEmpty).map(v => s"-P:scalafuzz:excludedPackages:$v"),
+          Option(scalafuzzExcludedFiles.value.trim).filter(_.nonEmpty).map(v => s"-P:scalafuzz:excludedFiles:$v")
         ).flatten
       } else {
         Nil
