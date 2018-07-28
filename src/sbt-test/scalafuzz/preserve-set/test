@@ -1,0 +1,19 @@
+# check scalaVersion setting
+> checkScalaVersion "2.11.8"
+> checkScalafuzzEnabled "false"
+> scalafuzz
+> checkScalafuzzEnabled "true"
+> scalafuzzOff
+> checkScalaVersion "2.11.8"
+> checkScalafuzzEnabled "false"
+# change scala version
+> ++2.10.6
+> checkScalaVersion "2.10.6"
+> checkScalafuzzEnabled "false"
+> scalafuzz
+> checkScalaVersion "2.10.6"
+# We want coverage to be false, as we set it in the build.sbt
+> checkScalafuzzEnabled "false"
+> scalafuzzOff
+> checkScalaVersion "2.10.6"
+> checkScalafuzzEnabled "false"
