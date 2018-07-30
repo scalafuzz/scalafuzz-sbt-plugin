@@ -10,7 +10,7 @@ object ScalafuzzSbtPlugin extends AutoPlugin {
   val ScalacRuntimeArtifact = "scalafuzz-scalac-runtime"
   val ScalacPluginArtifact = "scalafuzz-scalac-plugin"
   // this should match the version defined in build.sbt
-  val DefaultScalafuzzVersion = "0.1.5-SNAPSHOT"
+  val DefaultScalafuzzVersion = "0.1.6-SNAPSHOT"
   val autoImport = ScalafuzzKeys
   lazy val ScalafuzzPluginConfig = config("scalafuzzPlugin").hide
 
